@@ -168,12 +168,50 @@ This will install the WSL2 Ubuntu distribution. Reboot if prompted. After the im
 
 ### Docker Compose Workflow
 
-This workflow uses [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) and assumes that you have them installed.
+This workflow uses [Docker Compose v2](https://docs.docker.com/compose/) and either [Docker](https://docs.docker.com/get-docker/) or [Podman](https://podman.io/) and assumes that you have them installed.
 
 For the Docker Compose workflow, Nautobot uses [Invoke](http://docs.pyinvoke.org/en/latest/index.html) as a replacement for Make. Invoke was chosen because it is less arcane than make. Instead of a `Makefile`, Invoke reads the `tasks.py` in the project root.
 
 !!! note
     Although the Docker Compose workflow uses containers, it is important to note that the containers are running the local repository code on your machine. Changes you make to your local code will be picked up and executed by the containers.
+
+#### Podman Compatibility
+
+There are some extra steps required to use podman with the Nautobot Docker Compose workflow:
+
+- Install the [`docker-compose-plugin`](https://docs.docker.com/compose/install/linux/) package
+- Create symlinks for `docker-compose` and `docker`
+
+```sh
+# create directory for symlinks
+mkdir -p $HOME/.local/bin
+
+# make sure to add this line to your profile (in .profile, .bash_profile, .zsh_profile or similar)
+export PATH="$HOME/.local/bin:$PATH"
+
+# symlink docker to podman
+which podman && ln -s $(which podman) $HOME/.local/bin/docker
+```
+
+```sh title=symlink docker-compose on redhat/fedora
+rpm -q docker-compose-plugin && ln -s $(rpm -ql docker-compose-plugin | grep 'docker-compose$') $HOME/.local/bin/docker-compose
+```
+
+```sh title=sysmlink docker-compose on debian/ubunti/mint
+dpkg-query -W docker-compose-plugin && ln -s $(dpkg -L docker-compose-plugin | grep 'docker-compose$') $HOME/.local/bin/docker-compose
+```
+
+- Start the podman socket
+
+```sh
+# enable and start the rootless podman socket
+systemctl --user enable podman.socket
+systemctl --user start podman.socket
+
+# set DOCKER_HOST environment variable
+# make sure to add this line to your profile (in .profile, .bash_profile, .zsh_profile or similar)
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+```
 
 #### Install Invoke
 
