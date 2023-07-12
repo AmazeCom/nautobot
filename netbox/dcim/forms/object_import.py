@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
@@ -56,6 +56,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
 
 class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
     power_port = forms.ModelChoiceField(
+        label=_('Power port'),
         queryset=PowerPortTemplate.objects.all(),
         to_field_name='name',
         required=False
@@ -84,6 +85,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
 
 class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
+        label=_('Type'),
         choices=InterfaceTypeChoices.CHOICES
     )
     poe_mode = forms.ChoiceField(
@@ -106,9 +108,11 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
 
 class FrontPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
+        label=_('Type'),
         choices=PortTypeChoices.CHOICES
     )
     rear_port = forms.ModelChoiceField(
+        label=_('Rear port'),
         queryset=RearPortTemplate.objects.all(),
         to_field_name='name'
     )
@@ -136,6 +140,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
 
 class RearPortTemplateImportForm(ComponentTemplateImportForm):
     type = forms.ChoiceField(
+        label=_('Type'),
         choices=PortTypeChoices.CHOICES
     )
 
@@ -166,15 +171,18 @@ class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
 
 class InventoryItemTemplateImportForm(ComponentTemplateImportForm):
     parent = forms.ModelChoiceField(
+        label=_('Parent'),
         queryset=InventoryItemTemplate.objects.all(),
         required=False
     )
     role = forms.ModelChoiceField(
+        label=_('Role'),
         queryset=InventoryItemRole.objects.all(),
         to_field_name='name',
         required=False
     )
     manufacturer = forms.ModelChoiceField(
+        label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
         required=False
